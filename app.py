@@ -1,4 +1,5 @@
 import os
+import time
 from azure.cognitiveservices.vision.customvision.training import training_api
 from azure.cognitiveservices.vision.customvision.training.models import ImageUrlCreateEntry
 
@@ -6,7 +7,9 @@ from azure.cognitiveservices.vision.customvision.training.models import ImageUrl
 training_key = "<your training key>"
 prediction_key = "<your prediction key>"
 
-trainer = training_api.TrainingApi(training_key)
+def create_trainer(training_key)
+    trainer = training_api.TrainingApi(training_key)
+    return trainer
 
 # Create a new project
 
@@ -28,7 +31,7 @@ def set_tags(project, trainer):
         print("created tag: {0}".format(nametag))
     return tags
 
-def upload_images(path, tag, trainer):
+def upload_images(path, tag, trainer, project):
     picdir = "{0}".format(path) #define path to pictures
     tag = tag
 
@@ -37,3 +40,19 @@ def upload_images(path, tag, trainer):
             trainer.create_images_from_data(project.id, img_data.read(), [ tag.id ])
     print("Images are uploaded")
 
+def train(trainer, project):
+    print ("Training...")
+    iteration = trainer.train_project(project.id)
+    while (iteration.status == "Training"):
+        iteration = trainer.get_iteration(project.id, iteration.id)
+        print ("Training status: " + iteration.status)
+        time.sleep(1)  
+
+run = True
+while run:
+    print("Welcome, here you can create your own classifier")
+    trainer = create_trainer(training_key)
+    project = create_project(trainer)
+    tags = set_tags(project, trainer)
+    upload_images(path, tag, trainer, project)
+    train(trainer, project)
